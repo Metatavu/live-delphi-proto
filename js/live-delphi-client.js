@@ -3,14 +3,18 @@
   'use strict';
   
   $.widget("custom.liveDelphiClient", {
+    
     options: {
+      serverUrl: 'http://localhost:8000',
       reconnectTimeout: 3000,
       host: 'localhost',
       port: 8000
     },
+    
     _create : function() {
       this._state = null;
       this._pendingMessages = [];
+      this._queryId = null;
     },
     
     connect: function (sessionId) {
@@ -41,6 +45,23 @@
     
     sendMessage: function (data) {
       this._sendMessage(data);
+    },
+    
+    joinQuery: function (sessionId, queryId, callback) {
+      $.post(this.options.serverUrl + '/joinQuery/' + queryId, {
+        sessionId: sessionId
+      }, $.proxy(function (data) {
+        this._queryId = queryId;
+        
+        this.sendMessage({
+          'type': 'join-query'
+        });
+        
+        callback();
+      }, this))
+      .fail( $.proxy(function () {
+        callback("error");
+      }, this));
     },
     
     _reconnect: function () {
@@ -75,7 +96,6 @@
     
     _sendMessage: function (data) {
       if (this._state === 'CONNECTED') {
-        console.log(JSON.stringify(data));
         this._webSocket.send(JSON.stringify(data));
       } else {
         this._pendingMessages.push(JSON.stringify(data));

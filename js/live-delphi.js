@@ -19,11 +19,13 @@
       port: 8000
     });
     
-    $(document.body).on("connect", function () {
-      $("#chart").liveDelphiChart();
+    $(document.body).liveDelphiClient("joinQuery", sessionId, "2194774e-ebe9-49ce-bc6b-4e28645da40c", function () {
+      $(document.body).on("connect", function () {
+        $("#chart").liveDelphiChart();
+      });
+
+      $(document.body).liveDelphiClient('connect', sessionId);
     });
-    
-    $(document.body).liveDelphiClient('connect', sessionId);
   });
   
 })();
