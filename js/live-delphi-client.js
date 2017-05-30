@@ -47,7 +47,7 @@
       this._sendMessage(data);
     },
     
-    joinQuery: function (sessionId, queryId, callback) {
+    joinQuery: function (sessionId, queryId) {
       $.post(this.options.serverUrl + '/joinQuery/' + queryId, {
         sessionId: sessionId
       }, $.proxy(function (data) {
@@ -57,7 +57,9 @@
           'type': 'join-query'
         });
         
-        callback();
+        this.element.trigger("join-query", { 
+          queryId: queryId
+        }); 
       }, this))
       .fail( $.proxy(function () {
         callback("error");
@@ -116,9 +118,7 @@
     
     _onWebSocketMessage: function (event) {
       var message = JSON.parse(event.data);
-      this.element.trigger("message", {
-        message: message
-      }); 
+      this.element.trigger("message:" + message.type, message.data); 
     },
     
     _onWebSocketClose: function (event) {
